@@ -1,7 +1,16 @@
-﻿# CMakeList.txt: проект CMake для PackageComparison; включите исходный код и определения,
-# укажите здесь логику для конкретного проекта.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required(VERSION 3.8)
+project(package_compare)
+
+# Проверка операционной системы
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  # Поиск CXX
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+endif()
+
+# Путь к vcpkg
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};$ENV{VCPKG_ROOT}/installed/x64-windows")
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};$ENV{VCPKG_ROOT}/installed/x64-windows/share")
+set(CMAKE_TOOLCHAIN_FILE "C:/Users/Agenteec/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -9,25 +18,30 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
+set(CMAKE_PREFIX_PATH "C:/Users/Agenteec/vcpkg/installed/x64-windows" ${CMAKE_PREFIX_PATH})
 
-# Проверка операционной системы
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-#Поиск CXX
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-endif()
+# Поиск библиотеки jsoncpp
+find_package(jsoncpp CONFIG REQUIRED)
+# Поиск библиотеки CURL
+find_package(CURL CONFIG REQUIRED)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-#Настройка для vcpkg
- set(CMAKE_TOOLCHAIN_FILE "$ENV{USERPROFILE}/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
- endif()
+# Создание статической и динамической библиотеки package_compare
+add_library(package_compare STATIC src/PackageCompare.cpp)
+add_library(package_compare_shared SHARED src/PackageCompare.cpp)
 
+target_link_libraries(package_compare PRIVATE JsonCpp::JsonCpp CURL::libcurl)
+target_link_libraries(package_compare_shared PRIVATE JsonCpp::JsonCpp CURL::libcurl)
 
-project ("PackageComparison")
+# Создание CLI утилиты для библиотеки
+add_executable(pkgcompare_cli main.cpp)
+target_link_libraries(pkgcompare_cli package_compare)
 
-add_executable (PackageComparison "PackageComparison.cpp" "PackageComparison.h")
+# Указание пути к заголовочным файлам
+target_include_directories(package_compare PRIVATE "${PROJECT_SOURCE_DIR}/include")
+target_include_directories(package_compare_shared PRIVATE "${PROJECT_SOURCE_DIR}/include")
+target_include_directories(pkgcompare_cli PRIVATE "${PROJECT_SOURCE_DIR}/include")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET PackageComparison PROPERTY CXX_STANDARD 20)
+  set_property(TARGET package_compare PROPERTY CXX_STANDARD 20)
+  set_property(TARGET package_compare_shared PROPERTY CXX_STANDARD 20)
 endif()
-
-# TODO: Добавьте тесты и целевые объекты, если это необходимо.
