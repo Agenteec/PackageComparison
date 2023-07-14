@@ -31,7 +31,7 @@ std::vector<std::string> PackageComparison::getPackageList(const std::string& br
         }
         else
         {
-            std::cout << "Successful executing cURL request"<< std::endl;
+            std::cout << "Successful executing cURL request: "<< url << std::endl;
         }
         // Освобождение ресурсов cURL
         curl_easy_cleanup(curl);

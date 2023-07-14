@@ -5,12 +5,19 @@ project(package_compare)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # Поиск CXX
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+  set(CMAKE_PREFIX_PATH "/путь/к/установленному/каталогу/CURL" ${CMAKE_PREFIX_PATH})
+
 endif()
 
+
+# Проверка операционной системы
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 # Путь к vcpkg
 set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};$ENV{VCPKG_ROOT}/installed/x64-windows")
 set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};$ENV{VCPKG_ROOT}/installed/x64-windows/share")
 set(CMAKE_TOOLCHAIN_FILE "C:/Users/Agenteec/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+set(CMAKE_PREFIX_PATH "C:/Users/Agenteec/vcpkg/installed/x64-windows" ${CMAKE_PREFIX_PATH})
+endif()
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -18,7 +25,7 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-set(CMAKE_PREFIX_PATH "C:/Users/Agenteec/vcpkg/installed/x64-windows" ${CMAKE_PREFIX_PATH})
+
 
 # Поиск библиотеки jsoncpp
 find_package(jsoncpp CONFIG REQUIRED)
