@@ -3,7 +3,7 @@
 #include "PackageCompare.h"
 #include <iostream>
 
-int main() {
+int main(int argc, char* argv[]) {
     std::cout << "Processing..." << std::endl;
     PackageComparison pkgComparison;
     PackageComparisonResult result = pkgComparison.comparePackages("sisyphus", "p10");

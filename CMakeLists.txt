@@ -30,11 +30,11 @@ endif()
 find_package(jsoncpp CONFIG REQUIRED)
 # Поиск библиотеки CURL
 find_package(CURL REQUIRED)
-# include_directories(${CURL_INCLUDE_DIRS})
+include_directories(${CURL_INCLUDE_DIRS})
 
 # Создание статической и динамической библиотеки package_compare
-add_library(package_compare STATIC src/PackageCompare.cpp)
-add_library(package_compare_shared SHARED src/PackageCompare.cpp)
+add_library(package_compare STATIC "src/PackageCompare.cpp" "include/PackageCompare.h")
+add_library(package_compare_shared SHARED "src/PackageCompare.cpp" "include/PackageCompare.h")
 
 target_link_libraries(package_compare PRIVATE JsonCpp::JsonCpp CURL::libcurl)
 target_link_libraries(package_compare_shared PRIVATE JsonCpp::JsonCpp CURL::libcurl)

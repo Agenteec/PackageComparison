@@ -1,11 +1,12 @@
 #pragma once
-
 #include <string>
 #include <vector>
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
-
+#include <fstream>
+#include <curl/curl.h>
+#include <json/json.h>
 
 struct PackageComparisonResult {
     std::vector<std::string> packagesOnlyInBranch1;
@@ -21,4 +22,5 @@ public:
 
 private:
     std::vector<std::string> getPackageList(const std::string& branch);
+    bool saveJson(const Json::Value& jsonValue, const std::string& name);
 };
