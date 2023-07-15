@@ -82,12 +82,19 @@ PackageComparisonResult PackageComparison::comparePackages(const std::string& br
     for (const Json::Value& package1 : packageList1) {
         for (const Json::Value& package2 : packageList2) {
             if (package1 == package2) {
-                const std::string& packageVersion1 = package1["version"].asString();
-                const std::string& packageVersion2 = package2["version"].asString();
-                std::cout << package1["version"].asString() << "//\\\\" << package2["version"].asString() << std::endl;
-                if (packageVersion1 > packageVersion2) {
-                    result.packagesWithHigherVersionInBranch1.push_back(packageVersion1);
+                #pragma region Erorr
+                if (0)
+                {
+                    const std::string& packageVersion1 = package1["version"].asString();
+                    const std::string& packageVersion2 = package2["version"].asString();
+                    std::cout << package1["version"].asString() << "//\\\\" << package2["version"].asString() << std::endl;
+                    if (packageVersion1 > packageVersion2) {
+                        result.packagesWithHigherVersionInBranch1.push_back(packageVersion1);
+                    }
                 }
+                #pragma endregion
+
+
                 break;
             }
         }

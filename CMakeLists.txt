@@ -5,8 +5,7 @@ project(package_compare)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # Поиск CXX
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-  set(CMAKE_PREFIX_PATH "/путь/к/установленному/каталогу/CURL" ${CMAKE_PREFIX_PATH})
-
+  set(CMAKE_PREFIX_PATH "/usr/local" ${CMAKE_PREFIX_PATH})
 endif()
 
 
@@ -30,7 +29,8 @@ endif()
 # Поиск библиотеки jsoncpp
 find_package(jsoncpp CONFIG REQUIRED)
 # Поиск библиотеки CURL
-find_package(CURL CONFIG REQUIRED)
+find_package(CURL REQUIRED)
+# include_directories(${CURL_INCLUDE_DIRS})
 
 # Создание статической и динамической библиотеки package_compare
 add_library(package_compare STATIC src/PackageCompare.cpp)
