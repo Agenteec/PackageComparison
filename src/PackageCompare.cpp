@@ -1,5 +1,4 @@
 #include "PackageCompare.h"
-
 // pkgcompare.cpp
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
@@ -10,12 +9,11 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* out
 
 PackageComparison::PackageComparison() {
     curl_global_init(CURL_GLOBAL_DEFAULT);
-    std::cout << "PackageComparison..." << std::endl;
 }
 
-std::vector<std::string> PackageComparison::getPackageList(const std::string& branch) {
+std::vector<Package> PackageComparison::getPackageList(const std::string& branch) {
+
     std::string url = "https://rdb.altlinux.org/api/export/branch_binary_packages/" + branch;
-    //
     std::string response;
     CURL* curl = curl_easy_init();
     if (curl) {
@@ -26,11 +24,12 @@ std::vector<std::string> PackageComparison::getPackageList(const std::string& br
         // Выполнение запроса cURL
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            std::cout << "Error executing cURL request: " << curl_easy_strerror(res) << std::endl;
+
+            std::cout <<std::endl << "Error executing cURL request: " << curl_easy_strerror(res) << std::endl;
         }
         else
         {
-            std::cout << "Successful executing cURL request: "<< url << std::endl;
+            std::cout << std::endl << "Successful executing cURL request: "<< url << std::endl;
         }
         // Освобождение ресурсов cURL
         curl_easy_cleanup(curl);
@@ -42,13 +41,13 @@ std::vector<std::string> PackageComparison::getPackageList(const std::string& br
     std::string errs;
     std::istringstream iss(response);
     Json::parseFromStream(builder, iss, &root, &errs);
-    saveJson(root, branch);
     // Извлечение списка пакетов из JSON-ответа
-    std::vector<std::string> packageList;
+    std::vector<Package> packageList;
     const Json::Value& packages = root["packages"];
     for (const auto& package : packages) {
-        const std::string& packageName = package["name"].asString();
-        packageList.push_back(packageName);
+        const std::string& packageName = (package["name"].asString());
+        const std::string& packageVersion = (package["version"].asString());
+        packageList.push_back(Package(packageName, packageVersion));
     }
     return packageList;
 }
@@ -67,50 +66,99 @@ bool PackageComparison::saveJson(const Json::Value& jsonValue, const std::string
     return true;
 }
 
-PackageComparisonResult PackageComparison::comparePackages(const std::string& branch1, const std::string& branch2) {
-    // Получение списков пакетов для двух веток
-    std::vector<std::string> packageList1 = getPackageList(branch1);
-    std::vector<std::string> packageList2 = getPackageList(branch2);
+std::vector<std::string> PackageComparison::splitVersion(const std::string& version)
+{
+    std::vector<std::string> result;
+    std::istringstream iss(version);
+    std::string segment;
+    while (std::getline(iss, segment, '.')) {
+        result.push_back(segment);
+    }
+    return result;
+}
 
+int PackageComparison::compareVersions(const std::string& version1, const std::string& version2)
+{
+    std::vector<std::string> v1 = splitVersion(version1);
+    std::vector<std::string> v2 = splitVersion(version2);
+
+    // Добавляем нули, чтобы выровнять количество компонент версий
+    while (v1.size() < v2.size()) {
+        v1.push_back("0");
+    }
+    while (v2.size() < v1.size()) {
+        v2.push_back("0");
+    }
+
+    // Постоянное сравнение компонент версий
+    for (size_t i = 0; i < v1.size(); i++) {
+        if (v1[i] < v2[i]) {
+            return -1;
+        }
+        else if (v1[i] > v2[i]) {
+            return 1;
+        }
+    }
+
+    return 0; // Версии равны
+}
+
+Json::Value PackageComparison::convertVectorToJsonArray(const std::vector<std::string>& vec) {
+    Json::Value jsonArray(Json::arrayValue);
+
+    for (const auto& item : vec) {
+        jsonArray.append(item);
+    }
+
+    return jsonArray;
+}
+
+PackageComparisonResult PackageComparison::comparePackages(const std::string& branch1, const std::string& branch2, std::string path = "") {
     // Создание результата сравнения
     PackageComparisonResult result;
+    // Получение списков пакетов для двух веток
+    std::vector<Package> packageList1 = getPackageList(branch1);
+    std::vector<Package> packageList2 = getPackageList(branch2);
+    std::vector<std::string> packagesInBothBranches;
+   
 
     // Поиск пакетов, которые есть только в первой ветке
-    for (const auto& package : packageList1) {
-        if (std::find(packageList2.begin(), packageList2.end(), package) == packageList2.end()) {
-            result.packagesOnlyInBranch1.push_back(package);
-        }
-    }
-
-    // Поиск пакетов, которые есть только во второй ветке
-    for (const auto& package : packageList2) {
-        if (std::find(packageList1.begin(), packageList1.end(), package) == packageList1.end()) {
-            result.packagesOnlyInBranch2.push_back(package);
-        }
-    }
-
-    // Поиск пакетов с более высокой версией в первой ветке
-    for (const Json::Value& package1 : packageList1) {
-        for (const Json::Value& package2 : packageList2) {
-            if (package1 == package2) {
-                std::cout << "Error?"<<std::endl;
-                saveJson(package1, "p1");
-                saveJson(package2, "p2");
-                const std::string packageVersion1 = package1["version"].asString();
-                std::cout << "Ne\n";
-                const std::string packageVersion2 = package2["version"].asString();
-                std::cout << "Ne\n";
-                std::cout << package1["version"].asString() << "|-|" << package2["version"].asString() << std::endl;
-                if (packageVersion1 > packageVersion2) {
-                    result.packagesWithHigherVersionInBranch1.push_back(packageVersion1);
+    for (size_t i = 0; i < packageList1.size(); i++) {
+        bool notExists = true;
+        for (size_t j = 0; j < packageList2.size();j++) {
+            if (packageList1[i].name == packageList2[j].name) {
+                // Поиск пакетов с более высокой версией в первой ветке
+                packagesInBothBranches.push_back(packageList1[i].name);
+                if (compareVersions(packageList1[i].version, packageList2[j].version) > 0) {
+                    result.packagesWithHigherVersionInBranch1.push_back(packageList1[i].name);
                 }
-                std::cout << "No Error" << std::endl;
-
-
+                notExists = false;
                 break;
             }
+
+        }
+        if (notExists)
+        {
+            result.packagesOnlyInBranch1.push_back(packageList1[i].name);
         }
     }
+    // Поиск пакетов, которые есть только во второй ветке
+    for (const auto& package : packageList2) {
+        auto it = std::find_if(packageList1.begin(), packageList1.end(), [&package](const Package& p) {
+            return p.name == package.name;
+            });
 
+        if (it == packageList1.end()) {
+            result.packagesOnlyInBranch2.push_back(package.name);
+        }
+    }
+    if (path != "")
+    {
+        Json::Value root;
+        root["packagesOnlyInBranch "+ branch1] = convertVectorToJsonArray(result.packagesOnlyInBranch1);
+        root["packagesOnlyInBranch "+ branch2] = convertVectorToJsonArray(result.packagesOnlyInBranch2);
+        root["packagesWithHigherVersion"] = convertVectorToJsonArray(result.packagesWithHigherVersionInBranch1);
+        saveJson(root, path);
+    }
     return result;
 }

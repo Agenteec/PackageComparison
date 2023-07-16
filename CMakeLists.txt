@@ -28,8 +28,11 @@ endif()
 
 # Поиск библиотеки jsoncpp
 find_package(jsoncpp CONFIG REQUIRED)
+
 # Поиск библиотеки CURL
 find_package(CURL REQUIRED)
+
+include_directories(${jsoncpp_INCLUDE_DIRS})
 include_directories(${CURL_INCLUDE_DIRS})
 
 # Создание статической и динамической библиотеки package_compare
