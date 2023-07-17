@@ -25,7 +25,8 @@ if (POLICY CMP0141)
 endif()
 
 
-
+# Поиск библиотеки pthread
+find_package(Threads REQUIRED)
 # Поиск библиотеки jsoncpp
 find_package(jsoncpp CONFIG REQUIRED)
 
@@ -44,7 +45,7 @@ target_link_libraries(package_compare_shared PRIVATE JsonCpp::JsonCpp CURL::libc
 
 # Создание CLI утилиты для библиотеки
 add_executable(pkgcompare_cli main.cpp)
-target_link_libraries(pkgcompare_cli package_compare)
+target_link_libraries(pkgcompare_cli package_compare Threads::Threads)
 
 # Указание пути к заголовочным файлам
 target_include_directories(package_compare PRIVATE "${PROJECT_SOURCE_DIR}/include")
