@@ -9,7 +9,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 
-# Проверка операционной системы
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 # Путь к vcpkg
 set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};$ENV{VCPKG_ROOT}/installed/x64-windows")
