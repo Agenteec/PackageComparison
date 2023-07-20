@@ -2,17 +2,30 @@
 
 This utility compares packages between two branches and provides information about packages that are only in one branch, packages with higher versions in one branch, etc.
 
+## Dependencies
+
+1. JsonCpp: https://github.com/open-source-parsers/jsoncpp/
+2. CURL
+3. Threads
+
 ## Installation
 
 1. Clone the repository:
   git clone https://github.com/Agenteec/PackageComparison.git
 2. Change to the project directory:
   cd package-comparison
-3. Build the utility:
-  cmake -B build
-  cmake --build build
-4. Install the utility:
-  sudo make -C build install
+3. Create a "build" directory in the project's root folder:
+ mkdir build
+ cd build
+4. Run CMake to create project files:
+cmake ..
+5. Start building the library and utility:
+cmake --build .
+6. Install the library and utility (by default, they will be installed in /usr/local/lib and /usr/local/bin respectively):
+sudo cmake --install .
+
+7. Please note that to install the library and utility on Linux, you may need superuser rights (sudo).
+After completing these steps, your library and utility should be installed on the system. You can use the pkgcompare_cli utility to perform package comparisons.
 
 ## Usage
 
