@@ -23,6 +23,9 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
+IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND NOT MSVC)
+        set_source_files_properties(${SOURCES} COMPILE_FLAGS "${CMAKE_STATIC_LIBRARY_C_FLAGS} -fPIC")
+ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND NOT MSVC) 
 
 # Поиск библиотеки pthread
 find_package(Threads REQUIRED)
@@ -35,23 +38,27 @@ find_package(CURL REQUIRED)
 include_directories(${jsoncpp_INCLUDE_DIRS})
 include_directories(${CURL_INCLUDE_DIRS})
 
+
+
 # Создание статической и динамической библиотеки package_compare
-add_library(package_compare STATIC "src/PackageCompare.cpp" "include/PackageCompare.h")
+#add_library(package_compare STATIC "src/PackageCompare.cpp" "include/PackageCompare.h")
 add_library(package_compare_shared SHARED "src/PackageCompare.cpp" "include/PackageCompare.h")
 
-target_link_libraries(package_compare PRIVATE JsonCpp::JsonCpp CURL::libcurl)
+#target_link_libraries(package_compare PRIVATE JsonCpp::JsonCpp CURL::libcurl)
 target_link_libraries(package_compare_shared PRIVATE JsonCpp::JsonCpp CURL::libcurl)
 
 # Создание CLI утилиты для библиотеки
 add_executable(pkgcompare_cli main.cpp)
-target_link_libraries(pkgcompare_cli package_compare Threads::Threads)
+#target_link_libraries(pkgcompare_cli package_compare Threads::Threads)
+target_link_libraries(pkgcompare_cli PRIVATE package_compare_shared Threads::Threads)
 
 # Указание пути к заголовочным файлам
-target_include_directories(package_compare PRIVATE "${PROJECT_SOURCE_DIR}/include")
+#target_include_directories(package_compare PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(package_compare_shared PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(pkgcompare_cli PRIVATE "${PROJECT_SOURCE_DIR}/include")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET package_compare PROPERTY CXX_STANDARD 20)
+  #set_property(TARGET package_compare PROPERTY CXX_STANDARD 20)
   set_property(TARGET package_compare_shared PROPERTY CXX_STANDARD 20)
+  set_property(TARGET pkgcompare_cli PROPERTY CXX_STANDARD 20)
 endif()
