@@ -23,9 +23,8 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND NOT MSVC)
-        set_source_files_properties(${SOURCES} COMPILE_FLAGS "${CMAKE_STATIC_LIBRARY_C_FLAGS} -fPIC")
-ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" AND NOT MSVC) 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 
 # Поиск библиотеки pthread
 find_package(Threads REQUIRED)
