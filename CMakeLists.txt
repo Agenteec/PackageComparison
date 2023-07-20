@@ -62,4 +62,3 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET package_compare_shared PROPERTY CXX_STANDARD 20)
   set_property(TARGET pkgcompare_cli PROPERTY CXX_STANDARD 20)
 endif()
-//
