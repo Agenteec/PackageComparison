@@ -2,6 +2,12 @@
 
 This utility compares packages between two branches and provides information about packages that are only in one branch, packages with higher versions in one branch, etc.
 
+## Dependencies
+
+1. JsonCpp: https://github.com/open-source-parsers/jsoncpp/
+2. CURL
+3. Threads
+
 ## Installation
 
 1. Clone the repository:
