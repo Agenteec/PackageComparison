@@ -6,7 +6,6 @@ This utility compares packages between two branches and provides information abo
 
 1. JsonCpp: https://github.com/open-source-parsers/jsoncpp/
 2. CURL
-3. Threads
 
 ## Installation
 
