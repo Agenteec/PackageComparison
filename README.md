@@ -37,3 +37,6 @@ After completing these steps, your library and utility should be installed on th
 6. For example, to compare packages between branches "p10" and "p9" and save the result to "C:/output.json":
 7. pkgcompare_cli p10 p9 C:/output
 8. The utility will display the packages only in each branch and packages with higher versions in the first branch.
+## Errors
+1. If you get this error: pkgcompare_cli: error while loading shared libraries: libpackage_compare_shared.so: cannot open shared object file: No such file or directory
+2. You need to enter the command: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib

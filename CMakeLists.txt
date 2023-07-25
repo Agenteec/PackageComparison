@@ -20,7 +20,15 @@ add_library(package_compare_shared SHARED "src/PackageCompare.cpp" "include/Pack
 target_link_libraries(package_compare_shared PRIVATE jsoncpp_lib CURL::libcurl)
 add_executable(pkgcompare_cli main.cpp)
 target_link_libraries(pkgcompare_cli PRIVATE package_compare_shared)
+# Установка библиотеки package_compare_shared
+install(TARGETS package_compare_shared
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin)
 
+# Установка исполняемого файла pkgcompare_cli
+install(TARGETS pkgcompare_cli
+        RUNTIME DESTINATION bin)
 target_include_directories(package_compare_shared PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(pkgcompare_cli PRIVATE "${PROJECT_SOURCE_DIR}/include")
 
